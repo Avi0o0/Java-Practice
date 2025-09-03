@@ -30,6 +30,16 @@ public class GlobalExceptionHandler {
         error.put("details", ex.getBindingResult().getFieldError().getDefaultMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+    
+    // Handle Bad Request (like invalid inputs)
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRunTimeException(RuntimeException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", HttpStatus.BAD_REQUEST.value());
+        error.put("message", "Validation failed");
+        error.put("details", ex.getCause().getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 
     // Handle Any Other Exceptions
     @ExceptionHandler(Exception.class)
