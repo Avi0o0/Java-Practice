@@ -1,4 +1,4 @@
-package com.akshat.practice.app.beans;
+package com.akshat.practice.app.entity;
 
 import java.util.HashSet;
 import java.util.Set;

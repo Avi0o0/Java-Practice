@@ -1,10 +1,20 @@
 package com.akshat.practice.app.beans.request;
 
-public class EmployeeRequest {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
+public class EmployeeRequest {
+	
 	private Integer empid;
+	
+	@NotBlank(message = "Name is required")
 	private String empName;
+	
+	@NotBlank(message = "Employee Type is required")
+	@Pattern(regexp = "Regular|Contractual", message = "Type must be Regular or Contractual")
 	private String empType;
+	
+	@NotBlank(message = "Employee Field is required")
 	private String empField;
 
 	// Getters Setters

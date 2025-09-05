@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.akshat.practice.app.beans.Department;
 import com.akshat.practice.app.beans.request.DepartmentRequest;
 import com.akshat.practice.app.beans.response.StatusResponse;
+import com.akshat.practice.app.entity.Department;
 import com.akshat.practice.app.service.DepartmentService;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class DepartmentController {
@@ -35,13 +37,13 @@ public class DepartmentController {
 	}
 
 	@PostMapping("/department")
-	public ResponseEntity<StatusResponse> addDepartment(@RequestBody DepartmentRequest deptRequest) {
+	public ResponseEntity<StatusResponse> addDepartment(@Valid @RequestBody DepartmentRequest deptRequest) {
 		departmentService.addDepartment(deptRequest);
 		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), "Success"));
 	}
 
 	@PutMapping("/department/{id}")
-	public ResponseEntity<StatusResponse> updateDepartment(@RequestBody DepartmentRequest deptRequest, @PathVariable Integer id) {
+	public ResponseEntity<StatusResponse> updateDepartment(@Valid @RequestBody DepartmentRequest deptRequest, @PathVariable Integer id) {
 		departmentService.updateDepartment(deptRequest, id);
 		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), "Success"));
 	}

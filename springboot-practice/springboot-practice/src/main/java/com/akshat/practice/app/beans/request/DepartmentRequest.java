@@ -1,8 +1,13 @@
 package com.akshat.practice.app.beans.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class DepartmentRequest {
 
+	@NotBlank(message = "Department Name is required")
 	private String deptName;
+	
+	@NotBlank(message = "Department Head is required")
 	private String deptHead;
 
 	public String getDeptName() {

@@ -1,4 +1,4 @@
-package com.akshat.practice.app.beans;
+package com.akshat.practice.app.entity;
 
 import jakarta.persistence.*;
 import java.util.HashSet;

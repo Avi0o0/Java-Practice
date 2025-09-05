@@ -6,8 +6,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.akshat.practice.app.beans.Department;
 import com.akshat.practice.app.beans.request.DepartmentRequest;
+import com.akshat.practice.app.entity.Department;
 import com.akshat.practice.app.exception.ResourceNotFoundException;
 import com.akshat.practice.app.repository.DepartmentRepository;
 

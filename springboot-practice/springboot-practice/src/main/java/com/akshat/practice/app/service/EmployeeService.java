@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.akshat.practice.app.beans.Department;
-import com.akshat.practice.app.beans.Employee;
 import com.akshat.practice.app.beans.request.EmployeeRequest;
 import com.akshat.practice.app.beans.response.EmployeeResponse;
 import com.akshat.practice.app.beans.response.StatusResponse;
+import com.akshat.practice.app.entity.Department;
+import com.akshat.practice.app.entity.Employee;
 import com.akshat.practice.app.exception.ResourceNotFoundException;
 import com.akshat.practice.app.repository.DepartmentRepository;
 import com.akshat.practice.app.repository.EmployeeRepository;
@@ -54,11 +54,27 @@ public class EmployeeService {
 	public StatusResponse updateEmployee(EmployeeRequest employee, Integer id) {
 		Employee employeeData = employeeRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Invalid Employee ID: " + id));
-
 		mapper.map(employee, employeeData);
-
 		employeeRepository.save(employeeData);
-
+		return new StatusResponse(HttpStatus.OK.value(), "Employee Data Updated Successfully!");
+	}
+	
+	public StatusResponse patchEmployee(EmployeeRequest employee, Integer id) {
+		Employee employeeData = employeeRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Invalid Employee ID: " + id));
+		
+		if (employee.getEmpName() != null && !employee.getEmpName().trim().isEmpty()) {
+	        employeeData.setEmpName(employee.getEmpName());
+	    }
+	    if (employee.getEmpType() != null && !employee.getEmpType().trim().isEmpty()) {
+	        employeeData.setEmpType(employee.getEmpType());
+	    }
+	    if (employee.getEmpField() != null && !employee.getEmpField().trim().isEmpty()) {
+	        employeeData.setEmpField(employee.getEmpField());
+	    }
+	    
+	    employeeRepository.save(employeeData);
+	    
 		return new StatusResponse(HttpStatus.OK.value(), "Employee Data Updated Successfully!");
 	}
 
@@ -67,6 +83,9 @@ public class EmployeeService {
 	}
 
 	public void deleteEmployeeByID(int id) {
+		employeeRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + id));
+		
 		employeeRepository.deleteById(id);
 	}
 
