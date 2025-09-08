@@ -13,10 +13,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,6 +35,7 @@ import com.akshat.practice.app.exception.ResourceNotFoundException;
 import com.akshat.practice.app.repository.DepartmentRepository;
 
 @ExtendWith(MockitoExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DepartmentServiceTest {
 
     @Mock
@@ -41,28 +48,38 @@ class DepartmentServiceTest {
     private DepartmentService departmentService;
 
     private Department department;
+    
+    @BeforeAll
+    public void beforeAllSetup() {
+    	System.out.println("Starting Unit test for class: " + DepartmentServiceTest.class.toString());
+    }
+    
+    @AfterAll
+    public void afterAllSetup() {
+    	System.out.println("Unit test completed for class: " + DepartmentServiceTest.class.toString());
+    }
 
     @BeforeEach
-    void setUp(TestInfo testInfo) {
+    public void setUp(TestInfo testInfo) {
         department = new Department();
         department.setDeptId(1);
         department.setDeptName("IT");
         department.setDeptHead("John Doe");
+        System.out.println("→ Mock Department info setup done for test: " + testInfo.getDisplayName());
         System.out.println("➡ Running test: " + testInfo.getDisplayName());
     }
     
     @AfterEach
-    void afterEach(TestInfo testInfo) throws InterruptedException {
+    public void afterEach(TestInfo testInfo) throws InterruptedException {
         System.out.println("✅ Completed test: " + testInfo.getDisplayName());
     }
 
     @Test
    // @DisplayName("Get All Department Test")
-    void testGetAllDepartments() {
+    public void testGetAllDepartments() {
         when(departmentRepository.findAll()).thenReturn(Arrays.asList(department));
 
         List<Department> result = departmentService.getAllDepartments();
-
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("IT", result.get(0).getDeptName());
@@ -71,51 +88,44 @@ class DepartmentServiceTest {
     }
 
     @Test
-    void testGetDepartmentById_Found() {
+    public void testGetDepartmentById_Found() {
         when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
 
         Department result = departmentService.getDepartmentById(1);
-
         assertNotNull(result);
         assertEquals("IT", result.getDeptName());
-
         verify(departmentRepository, times(1)).findById(1);
     }
 
     @Test
-    void testGetDepartmentById_NotFound() {
+    public void testGetDepartmentById_NotFound() {
         when(departmentRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> departmentService.getDepartmentById(99));
-
         verify(departmentRepository, times(1)).findById(99);
     }
 
     @Test
-    void testAddDepartment() {
+    public void testAddDepartment() {
         DepartmentRequest deptRequest = new DepartmentRequest();
         deptRequest.setDeptName("Finance");
         deptRequest.setDeptHead("Alice");
 
         Department newDept = new Department(deptRequest);
-
         when(departmentRepository.save(any(Department.class))).thenReturn(newDept);
-
         departmentService.addDepartment(deptRequest);
-
         verify(departmentRepository, times(1)).save(any(Department.class));
     }
 
     @Test
-    void testUpdateDepartment_Found() {
+    public void testUpdateDepartment_Found() {
         DepartmentRequest deptRequest = new DepartmentRequest();
         deptRequest.setDeptName("HR");
         deptRequest.setDeptHead("Bob");
 
         when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
 
-        // Simulate mapper behavior
         doAnswer(invocation -> {
             DepartmentRequest source = invocation.getArgument(0);
             Department target = invocation.getArgument(1);
@@ -125,60 +135,60 @@ class DepartmentServiceTest {
         }).when(mapper).map(any(DepartmentRequest.class), any(Department.class));
 
         departmentService.updateDepartment(deptRequest, 1);
-
         assertEquals("HR", department.getDeptName());
         assertEquals("Bob", department.getDeptHead());
-
         verify(departmentRepository, times(1)).save(department);
     }
 
     @Test
-    void testUpdateDepartment_NotFound() {
+    public void testUpdateDepartment_NotFound() {
         DepartmentRequest deptRequest = new DepartmentRequest();
         when(departmentRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> departmentService.updateDepartment(deptRequest, 99));
-
         verify(departmentRepository, times(1)).findById(99);
     }
 
     @Test
-    void testDeleteAllDepartments() {
+    public void testDeleteAllDepartments() {
         departmentService.deleteAllDepartments();
-
         verify(departmentRepository, times(1)).deleteAll();
     }
 
     @Test
-    void testDeleteDepartmentById() {
+    public void testDeleteDepartmentById() {
         departmentService.deleteDepartmentById(1);
-
         verify(departmentRepository, times(1)).deleteById(1);
     }
 
     @Test
-    void testGetDepartmentsByEmployee_Found() {
+    @RepeatedTest(value = 2, name = "testGetDepartmentsByEmployee_Found Test : {currentRepetition} of {totalRepetitions}")
+    public void testGetDepartmentsByEmployee_Found() {
         when(departmentRepository.findDepartmentsByEmployeeId(1))
                 .thenReturn(Arrays.asList(department));
 
         List<Department> result = departmentService.getDepartmentsByEmployee(1);
-
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("IT", result.get(0).getDeptName());
-
         verify(departmentRepository, times(1)).findDepartmentsByEmployeeId(1);
     }
 
     @Test
-    void testGetDepartmentsByEmployee_NotFound() {
+    public void testGetDepartmentsByEmployee_NotFound() {
         when(departmentRepository.findDepartmentsByEmployeeId(99))
                 .thenReturn(List.of());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> departmentService.getDepartmentsByEmployee(99));
-
         verify(departmentRepository, times(1)).findDepartmentsByEmployeeId(99);
+    }
+    
+    @Test
+    @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Enabled only on Windows")
+    public void testDeleteAllDepartmentsOnlyOnWindows() {
+        departmentService.deleteAllDepartments();
+        verify(departmentRepository, times(1)).deleteAll();
     }
 }
