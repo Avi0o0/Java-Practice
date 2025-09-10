@@ -1,4 +1,4 @@
-package com.akshat.practice.app.confirg;
+package com.akshat.practice.app.config;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
