@@ -33,6 +33,9 @@ public class Employee {
 
 	@Column(name = "empfield")
 	private String empField;
+	
+	@Column(name = "empemail")
+	private String empEmail;
 
 	@ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JoinTable(name = "employee_department", joinColumns = { @JoinColumn(name = "empid") }, 
@@ -80,14 +83,23 @@ public class Employee {
 		this.empField = empField;
 	}
 
+	public String getEmpEmail() {
+		return empEmail;
+	}
+
+	public void setEmpEmail(String empEmail) {
+		this.empEmail = empEmail;
+	}
+
 	public Employee() {
 	}
 
-	public Employee(Integer empId, String empName, String empType, String empField) {
+	public Employee(Integer empId, String empName, String empType, String empField, String empEmail) {
 		super();
 		this.empId = empId;
 		this.empName = empName;
 		this.empType = empType;
 		this.empField = empField;
+		this.empEmail = empEmail;
 	}
 }

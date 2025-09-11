@@ -5,9 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -18,13 +16,13 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
     	
-    	/*Using lambda*/
+    	/*Using lambda
 		security.csrf(customizer -> customizer.disable()); // disabling csrf will make it use just basic auth with id pass
 		security.authorizeHttpRequests(request -> request.anyRequest().authenticated()); //Won't allow access without authentication
 		security.formLogin(Customizer.withDefaults());//browser login form
 		security.httpBasic(Customizer.withDefaults()); //accept postman basic auth
 		security.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); //Means creates a session on each hit, will interrupt browser as it will ask for login page again and again because everytime session is changing
-    	return security.build();
+    	return security.build();*/
     	
     	/*Normal Imperative way
     	Customizer<CsrfConfigurer<HttpSecurity>> custCsrf = new Customizer<CsrfConfigurer<HttpSecurity>>() {
@@ -43,5 +41,15 @@ public class SecurityConfig {
 		};
 		security.authorizeHttpRequests()*/
     	//return security.build();
+    	
+    	/*using builder pattern*/
+    	return security
+    			.csrf(AbstractHttpConfigurer::disable) // disabling csrf will make it use just basic auth with id pass
+				.authorizeHttpRequests(request -> request.anyRequest().authenticated()) //Won't allow access without authentication
+				.formLogin(Customizer.withDefaults())//browser login form
+				.httpBasic(Customizer.withDefaults()) //accept postman basic auth
+				.sessionManagement(session -> 
+					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //Means creates a session on each hit, will interrupt browser as it will ask for login page again and again because everytime session is changing
+		    	.build();
 	}
 }

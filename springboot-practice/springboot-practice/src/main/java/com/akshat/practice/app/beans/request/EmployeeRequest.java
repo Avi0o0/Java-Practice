@@ -1,5 +1,7 @@
 package com.akshat.practice.app.beans.request;
 
+import com.akshat.practice.app.customannotations.InnodeedEmail;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
@@ -16,6 +18,10 @@ public class EmployeeRequest {
 	
 	@NotBlank(message = "Employee Field is required")
 	private String empField;
+	
+	@NotBlank(message = "Email cannot be blank")
+	@InnodeedEmail
+	private String empEmail;
 
 	// Getters Setters
 	public Integer getEmpid() {
@@ -50,12 +56,22 @@ public class EmployeeRequest {
 		this.empField = empField;
 	}
 
+	public String getEmpEmail() {
+		return empEmail;
+	}
+
+	public void setEmpEmail(String empEmail) {
+		this.empEmail = empEmail;
+	}
+
 	// Constructor
-	public EmployeeRequest(Integer empid, String empName, String empType, String empField) {
+	public EmployeeRequest(Integer empid, String empName, String empType, String empField, String empEmail) {
 		super();
 		this.empid = empid;
 		this.empName = empName;
 		this.empType = empType;
 		this.empField = empField;
+		this.empEmail = empEmail;
 	}
+	
 }

@@ -27,7 +27,6 @@ public class GlobalExceptionHandler {
         Map<String, Object> error = new HashMap<>();
         error.put("status", HttpStatus.BAD_REQUEST.value());
         error.put("message", "Validation failed");
-        error.put("details", ex.getBindingResult().getFieldError().getDefaultMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
     
@@ -46,7 +45,6 @@ public class GlobalExceptionHandler {
         Map<String, Object> error = new HashMap<>();
         error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         error.put("message", "Something went wrong");
-        error.put("details", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

@@ -2,7 +2,6 @@ package com.akshat.practice.app.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.akshat.practice.app.beans.request.EmployeeRequest;
 import com.akshat.practice.app.beans.response.EmployeeResponse;
 import com.akshat.practice.app.beans.response.StatusResponse;
+import com.akshat.practice.app.constants.AppConstants;
 import com.akshat.practice.app.service.EmployeeService;
 
 import jakarta.validation.Valid;
@@ -24,10 +24,11 @@ import jakarta.validation.Valid;
 @RestController
 public class EmployeeController {
 
-	// private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
-
-	@Autowired
-	private EmployeeService employeeService;
+	private final EmployeeService employeeService;
+	
+	public EmployeeController(EmployeeService employeeService) {
+		this.employeeService = employeeService;
+	}
 
 	@GetMapping("/employees")
 	public List<EmployeeResponse> getAllEmployee() {
@@ -42,7 +43,7 @@ public class EmployeeController {
 	@PostMapping("/employee")
 	public ResponseEntity<StatusResponse> addEmployees(@Valid @RequestBody EmployeeRequest employee) {
 		employeeService.addEmployee(employee);
-		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), "Success"));
+		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), AppConstants.SUCCESS));
 	}
 
 	@PutMapping("/employee/{id}")
@@ -62,13 +63,13 @@ public class EmployeeController {
 	@DeleteMapping("/employees")
 	public ResponseEntity<StatusResponse> deleteAllEmployees() {
 		employeeService.deleteAllEmployees();
-		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), "Success"));
+		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), AppConstants.SUCCESS));
 	}
 
 	@DeleteMapping("employee/{id}")
 	public ResponseEntity<StatusResponse> deleteEmployeeByID(@PathVariable Integer id) {
 		employeeService.deleteEmployeeByID(id);
-		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), "Success"));
+		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), AppConstants.SUCCESS));
 	}
 
 	@PutMapping("/employee/{empId}/assign-departments")

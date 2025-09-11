@@ -6,6 +6,7 @@ public class EmployeeResponse {
 	private String empName;
 	private String empType;
 	private String empField;
+	private String empEmail;
 
 	// Getters Setters
 	public Integer getEmpid() {
@@ -40,12 +41,21 @@ public class EmployeeResponse {
 		this.empField = empField;
 	}
 
+	public String getEmpEmail() {
+		return empEmail;
+	}
+
+	public void setEmpEmail(String empEmail) {
+		this.empEmail = empEmail;
+	}
+
 	// Constructor
-	public EmployeeResponse(Integer empid, String empName, String empType, String empField) {
+	public EmployeeResponse(Integer empid, String empName, String empType, String empField, String empEmail) {
 		super();
 		this.empid = empid;
 		this.empName = empName;
 		this.empType = empType;
 		this.empField = empField;
+		this.empEmail = empEmail;
 	}
 }

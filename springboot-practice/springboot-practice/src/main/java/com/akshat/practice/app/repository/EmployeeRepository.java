@@ -13,4 +13,6 @@ import com.akshat.practice.app.entity.Employee;
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query("SELECT e FROM Employee e JOIN e.departments d WHERE d.deptId = :deptId")
     List<Employee> findEmployeesByDepartmentId(@Param("deptId") Integer deptId);
+
+	boolean existsByEmpEmail(String empEmail);
 }

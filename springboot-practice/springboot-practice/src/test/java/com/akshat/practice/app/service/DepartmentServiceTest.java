@@ -50,17 +50,17 @@ class DepartmentServiceTest {
     private Department department;
     
     @BeforeAll
-    public void beforeAllSetup() {
+    void beforeAllSetup() {
     	System.out.println("Starting Unit test for class: " + DepartmentServiceTest.class.toString());
     }
     
     @AfterAll
-    public void afterAllSetup() {
+    void afterAllSetup() {
     	System.out.println("Unit test completed for class: " + DepartmentServiceTest.class.toString());
     }
 
     @BeforeEach
-    public void setUp(TestInfo testInfo) {
+    void setUp(TestInfo testInfo) {
         department = new Department();
         department.setDeptId(1);
         department.setDeptName("IT");
@@ -70,13 +70,13 @@ class DepartmentServiceTest {
     }
     
     @AfterEach
-    public void afterEach(TestInfo testInfo) throws InterruptedException {
+    void afterEach(TestInfo testInfo) {
         System.out.println("✅ Completed test: " + testInfo.getDisplayName());
     }
 
     @Test
    // @DisplayName("Get All Department Test")
-    public void testGetAllDepartments() {
+    void testGetAllDepartments() {
         when(departmentRepository.findAll()).thenReturn(Arrays.asList(department));
 
         List<Department> result = departmentService.getAllDepartments();
@@ -88,7 +88,7 @@ class DepartmentServiceTest {
     }
 
     @Test
-    public void testGetDepartmentById_Found() {
+    void testGetDepartmentById_Found() {
         when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
 
         Department result = departmentService.getDepartmentById(1);
@@ -98,7 +98,7 @@ class DepartmentServiceTest {
     }
 
     @Test
-    public void testGetDepartmentById_NotFound() {
+    void testGetDepartmentById_NotFound() {
         when(departmentRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -107,7 +107,7 @@ class DepartmentServiceTest {
     }
 
     @Test
-    public void testAddDepartment() {
+    void testAddDepartment() {
         DepartmentRequest deptRequest = new DepartmentRequest();
         deptRequest.setDeptName("Finance");
         deptRequest.setDeptHead("Alice");
@@ -119,7 +119,7 @@ class DepartmentServiceTest {
     }
 
     @Test
-    public void testUpdateDepartment_Found() {
+    void testUpdateDepartment_Found() {
         DepartmentRequest deptRequest = new DepartmentRequest();
         deptRequest.setDeptName("HR");
         deptRequest.setDeptHead("Bob");
@@ -141,7 +141,7 @@ class DepartmentServiceTest {
     }
 
     @Test
-    public void testUpdateDepartment_NotFound() {
+    void testUpdateDepartment_NotFound() {
         DepartmentRequest deptRequest = new DepartmentRequest();
         when(departmentRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -151,20 +151,20 @@ class DepartmentServiceTest {
     }
 
     @Test
-    public void testDeleteAllDepartments() {
+    void testDeleteAllDepartments() {
         departmentService.deleteAllDepartments();
         verify(departmentRepository, times(1)).deleteAll();
     }
 
     @Test
-    public void testDeleteDepartmentById() {
+    void testDeleteDepartmentById() {
         departmentService.deleteDepartmentById(1);
         verify(departmentRepository, times(1)).deleteById(1);
     }
 
-    @Test
+    //@Test
     @RepeatedTest(value = 2, name = "testGetDepartmentsByEmployee_Found Test : {currentRepetition} of {totalRepetitions}")
-    public void testGetDepartmentsByEmployee_Found() {
+    void testGetDepartmentsByEmployee_Found() {
         when(departmentRepository.findDepartmentsByEmployeeId(1))
                 .thenReturn(Arrays.asList(department));
 
@@ -176,7 +176,7 @@ class DepartmentServiceTest {
     }
 
     @Test
-    public void testGetDepartmentsByEmployee_NotFound() {
+    void testGetDepartmentsByEmployee_NotFound() {
         when(departmentRepository.findDepartmentsByEmployeeId(99))
                 .thenReturn(List.of());
 
@@ -187,7 +187,7 @@ class DepartmentServiceTest {
     
     @Test
     @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Enabled only on Windows")
-    public void testDeleteAllDepartmentsOnlyOnWindows() {
+    void testDeleteAllDepartmentsOnlyOnWindows() {
         departmentService.deleteAllDepartments();
         verify(departmentRepository, times(1)).deleteAll();
     }

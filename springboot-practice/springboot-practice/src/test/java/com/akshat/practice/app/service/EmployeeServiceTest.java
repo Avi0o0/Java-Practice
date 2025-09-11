@@ -33,7 +33,7 @@ import com.akshat.practice.app.repository.EmployeeRepository;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class EmployeeServiceTest {
+class EmployeeServiceTest {
 
 	@Mock
 	private EmployeeRepository employeeRepository;
@@ -47,17 +47,17 @@ public class EmployeeServiceTest {
 	private Employee employee;
 
 	@BeforeAll
-	public void beforeAllSetup() {
+	void beforeAllSetup() {
 		System.out.println("Starting Unit test for class: " + EmployeeServiceTest.class.toString());
 	}
 
 	@AfterAll
-	public void afterAllSetup() {
+	void afterAllSetup() {
 		System.out.println("Unit test completed for class: " + EmployeeServiceTest.class.toString());
 	}
 
 	@BeforeEach
-	public void setUp(TestInfo testInfo) {
+	void setUp(TestInfo testInfo) {
 		employee = new Employee();
 		employee.setEmpId(1);
 		employee.setEmpField("IT");
@@ -68,12 +68,12 @@ public class EmployeeServiceTest {
 	}
 
 	@AfterEach
-	public void afterEach(TestInfo testInfo) throws InterruptedException {
+	void afterEach(TestInfo testInfo) {
 		System.out.println("✅ Completed test: " + testInfo.getDisplayName());
 	}
 
 	@Test
-	public void testGetAllEmployees() {
+	void testGetAllEmployees() {
 		when(employeeRepository.findAll()).thenReturn(Arrays.asList(employee));
 
 		List<EmployeeResponse> employees = employeeService.getAllEmployees();
@@ -83,7 +83,7 @@ public class EmployeeServiceTest {
 	}
 
 	@Test
-	public void testGetEmployeeByID() {
+	void testGetEmployeeByID() {
 		when(employeeRepository.findById(1)).thenReturn(Optional.of(employee));
 
 		EmployeeResponse employeeResponse = employeeService.getEmployee(1);
@@ -93,7 +93,7 @@ public class EmployeeServiceTest {
 	}
 
 	@Test
-	public void testGetDepartmentById_NotFound() {
+	void testGetDepartmentById_NotFound() {
 		when(employeeRepository.findById(99)).thenReturn(Optional.empty());
 
 		assertThrows(ResourceNotFoundException.class, () -> employeeService.getEmployee(99));
@@ -101,14 +101,15 @@ public class EmployeeServiceTest {
 	}
 
 	@Test
-	public void testAddEmployee() {
-		EmployeeRequest employeeRequest = new EmployeeRequest(1, "Akshat", "Regular", "IT");
+	void testAddEmployee() {
+		EmployeeRequest employeeRequest = new EmployeeRequest(1, "Akshat", "Regular", "IT", "akshat.gupta@innodeed.com");
 		
-		Employee employee = new Employee();
-		employee.setEmpField(employeeRequest.getEmpField());
-		employee.setEmpId(employeeRequest.getEmpid());
-		employee.setEmpName(employeeRequest.getEmpName());
-		employee.setEmpType(employeeRequest.getEmpType());
+		Employee employeeEntity = new Employee();
+		employeeEntity.setEmpField(employeeRequest.getEmpField());
+		employeeEntity.setEmpId(employeeRequest.getEmpid());
+		employeeEntity.setEmpName(employeeRequest.getEmpName());
+		employeeEntity.setEmpType(employeeRequest.getEmpType());
+		employeeEntity.setEmpEmail(employeeRequest.getEmpEmail());
 		
 		when(employeeRepository.save(any(Employee.class))).thenReturn(employee);
 		employeeService.addEmployee(employeeRequest);

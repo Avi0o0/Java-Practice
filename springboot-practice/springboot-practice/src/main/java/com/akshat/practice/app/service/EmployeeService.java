@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +13,7 @@ import com.akshat.practice.app.beans.response.EmployeeResponse;
 import com.akshat.practice.app.beans.response.StatusResponse;
 import com.akshat.practice.app.entity.Department;
 import com.akshat.practice.app.entity.Employee;
+import com.akshat.practice.app.exception.AlreadyExistException;
 import com.akshat.practice.app.exception.ResourceNotFoundException;
 import com.akshat.practice.app.repository.DepartmentRepository;
 import com.akshat.practice.app.repository.EmployeeRepository;
@@ -21,33 +21,43 @@ import com.akshat.practice.app.repository.EmployeeRepository;
 @Service
 public class EmployeeService {
 
-	@Autowired
-	private EmployeeRepository employeeRepository;
+	private final EmployeeRepository employeeRepository;
+    private final DepartmentRepository departmentRepository;
+    private final ModelMapper mapper;
 
-	@Autowired
-	private DepartmentRepository departmentRepository;
-
-	@Autowired
-	private ModelMapper mapper;
+    // Spring automatically injects beans via this constructor
+    public EmployeeService(EmployeeRepository employeeRepository,
+                           DepartmentRepository departmentRepository,
+                           ModelMapper mapper) {
+        this.employeeRepository = employeeRepository;
+        this.departmentRepository = departmentRepository;
+        this.mapper = mapper;
+    }
 
 	public List<EmployeeResponse> getAllEmployees() {
 		List<Employee> employeeLists = employeeRepository.findAll();
-		List<EmployeeResponse> respList = employeeLists.stream().map(empList -> new EmployeeResponse(empList.getEmpId(),
-				empList.getEmpName(), empList.getEmpType(), empList.getEmpField())).toList();
-		return respList;
+		return employeeLists.stream().map(empList -> new EmployeeResponse(empList.getEmpId(),
+				empList.getEmpName(), empList.getEmpType(), empList.getEmpField(), empList.getEmpEmail())).toList();
 	}
 
 	public EmployeeResponse getEmployee(Integer id) {
 		Optional<Employee> employee = employeeRepository.findById(id);
-		EmployeeResponse response = employee
-				.map(emp -> new EmployeeResponse(emp.getEmpId(), emp.getEmpName(), emp.getEmpType(), emp.getEmpField()))
+		return employee
+				.map(emp -> new EmployeeResponse(emp.getEmpId(), emp.getEmpName(), emp.getEmpType(), emp.getEmpField(), emp.getEmpEmail()))
 				.orElseThrow(() -> new ResourceNotFoundException("Employee with ID " + id + " not found"));
-		return response;
 	}
 
 	public void addEmployee(EmployeeRequest employee) {
+		if (employeeRepository.existsById(employee.getEmpid())) {
+            throw new AlreadyExistException("Employee with ID " + employee.getEmpid() + " already exists");
+        }
+
+        if (employeeRepository.existsByEmpEmail(employee.getEmpEmail())) {
+            throw new AlreadyExistException("Employee with email " + employee.getEmpEmail() + " already exists");
+        }
+        
 		Employee emp = new Employee(employee.getEmpid(), employee.getEmpName(), employee.getEmpType(),
-				employee.getEmpField());
+				employee.getEmpField(), employee.getEmpEmail());
 		employeeRepository.save(emp);
 	}
 
@@ -96,7 +106,7 @@ public class EmployeeService {
 		List<Department> departments = departmentRepository.findAllById(departmentIds);
 
 		if (departments.isEmpty()) {
-			throw new RuntimeException("No departments found for ids " + departmentIds);
+			throw new ResourceNotFoundException("No departments found for ids " + departmentIds);
 		}
 
 		employee.setDepartments(new HashSet<>(departments));
@@ -111,7 +121,7 @@ public class EmployeeService {
 		}
 
 		return employeeLists.stream()
-				.map(emp -> new EmployeeResponse(emp.getEmpId(), emp.getEmpName(), emp.getEmpType(), emp.getEmpField()))
+				.map(emp -> new EmployeeResponse(emp.getEmpId(), emp.getEmpName(), emp.getEmpType(), emp.getEmpField(), emp.getEmpEmail()))
 				.toList();
 	}
 }
