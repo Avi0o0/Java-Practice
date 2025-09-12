@@ -26,9 +26,7 @@ public class EmployeeService {
     private final ModelMapper mapper;
 
     // Spring automatically injects beans via this constructor
-    public EmployeeService(EmployeeRepository employeeRepository,
-                           DepartmentRepository departmentRepository,
-                           ModelMapper mapper) {
+    public EmployeeService(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository, ModelMapper mapper) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.mapper = mapper;

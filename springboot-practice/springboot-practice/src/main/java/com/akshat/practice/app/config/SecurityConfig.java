@@ -1,17 +1,29 @@
 package com.akshat.practice.app.config;
 
+import com.akshat.practice.app.service.UserService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+	private final UserService userService;
+
+	public SecurityConfig(UserService userService) {
+	    this.userService = userService;
+	}
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
@@ -46,10 +58,30 @@ public class SecurityConfig {
     	return security
     			.csrf(AbstractHttpConfigurer::disable) // disabling csrf will make it use just basic auth with id pass
 				.authorizeHttpRequests(request -> request.anyRequest().authenticated()) //Won't allow access without authentication
-				.formLogin(Customizer.withDefaults())//browser login form
+				//.formLogin(Customizer.withDefaults())//browser login form
 				.httpBasic(Customizer.withDefaults()) //accept postman basic auth
 				.sessionManagement(session -> 
 					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //Means creates a session on each hit, will interrupt browser as it will ask for login page again and again because everytime session is changing
 		    	.build();
 	}
+    
+//    @Bean
+//    UserDetailsService userDetailsService() {
+//    	UserDetails user1 = User
+//    			.withDefaultPasswordEncoder()
+//    			.username("Akshat")
+//    			.password("Akshat@0o0")
+//    			.roles("EMPLOYEE")
+//    			.build();
+//    	
+//    	return new InMemoryUserDetailsManager(user1);
+//    }
+    
+    @Bean
+    AuthenticationProvider authenticationProvider() {
+    	DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    	provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+    	provider.setUserDetailsService(userService);
+    	return provider;
+    }
 }

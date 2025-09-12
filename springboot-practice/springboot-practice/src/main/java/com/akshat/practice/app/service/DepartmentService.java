@@ -3,7 +3,6 @@ package com.akshat.practice.app.service;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.akshat.practice.app.beans.request.DepartmentRequest;
@@ -14,11 +13,13 @@ import com.akshat.practice.app.repository.DepartmentRepository;
 @Service
 public class DepartmentService {
 
-	@Autowired
-	private DepartmentRepository departmentRepository;
+	private final DepartmentRepository departmentRepository;
+	private final ModelMapper mapper;
 	
-	@Autowired
-	private ModelMapper mapper;
+	public DepartmentService(DepartmentRepository departmentRepository, ModelMapper mapper) {
+		this.departmentRepository = departmentRepository;
+		this.mapper = mapper;
+	}
 
 	public List<Department> getAllDepartments() {
 		return departmentRepository.findAll();
