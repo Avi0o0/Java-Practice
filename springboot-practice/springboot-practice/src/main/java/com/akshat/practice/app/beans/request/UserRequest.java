@@ -12,7 +12,7 @@ public class UserRequest {
 	private String password;
 	
 	@NotBlank(message = "Role is required: ADMIN or EMPLOYEE")
-	@Pattern(regexp = "ADMIN|EMPLOYEE", message = "Type must be Admin or Employee")
+	@Pattern(regexp = "ADMIN|EMPLOYEE", message = "Type must be ADMIN or EMPLOYEE")
 	private String role;
 
 	public String getUsername() {

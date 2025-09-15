@@ -1,5 +1,6 @@
 package com.akshat.practice.app.entity;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -7,11 +8,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class UserPrincipal implements UserDetails {
-
-	private static final long serialVersionUID = 1L;
-
-	private Users user;
+public class UserPrincipal implements UserDetails, Serializable{
+	
+	private static final long serialVersionUID = 4679085247399505579L;
+	
+	private final Users user;
 
 	public UserPrincipal(Users user) {
 		this.user = user;
@@ -19,7 +20,7 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+		return Collections.singleton(new SimpleGrantedAuthority("USER"));
 	}
 
 	@Override
@@ -29,30 +30,26 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return user.getUserName();
+		return user.getUsername();
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 	
 	@Override
 	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 	
 	@Override
 	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 	
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 }

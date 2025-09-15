@@ -1,5 +1,7 @@
 package com.akshat.practice.app.entity;
 
+import java.io.Serializable;
+
 import com.akshat.practice.app.beans.request.UserRequest;
 
 import jakarta.persistence.Column;
@@ -10,8 +12,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Users")
-public class Users {
+@Table(name = "users")
+public class Users implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name = "id")
@@ -26,6 +30,9 @@ public class Users {
 	
 	@Column(name = "role")
 	private String role;
+	
+	public Users() {
+    }
 
 	public Users(UserRequest request) {
 		this.username = request.getUsername();
@@ -41,11 +48,11 @@ public class Users {
 		this.id = id;
 	}
 
-	public String getUserName() {
+	public String getUsername() {
 		return username;
 	}
 
-	public void setUserName(String userName) {
+	public void setUsername(String userName) {
 		this.username = userName;
 	}
 
