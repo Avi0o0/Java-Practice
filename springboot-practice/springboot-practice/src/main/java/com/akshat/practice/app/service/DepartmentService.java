@@ -54,11 +54,9 @@ public class DepartmentService {
 
 	public List<Department> getDepartmentsByEmployee(Integer empId) {
 		List<Department> departments = departmentRepository.findDepartmentsByEmployeeId(empId);
-
 	    if (departments.isEmpty()) {
 	        throw new ResourceNotFoundException("Employee with employee ID " + empId + " not found");
 	    }
-
 	    return departments;
 	}
 }

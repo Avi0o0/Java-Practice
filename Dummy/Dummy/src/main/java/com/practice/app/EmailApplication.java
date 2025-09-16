@@ -1,15 +1,17 @@
-package com.akshat.practice.app;
+package com.practice.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 @EnableFeignClients
-public class SpringbootPracticeApplication {
+public class EmailApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringbootPracticeApplication.class, args);
+		SpringApplication.run(EmailApplication.class, args);
 	}
 
 }

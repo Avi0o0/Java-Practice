@@ -68,4 +68,5 @@ public class DepartmentController {
 	public List<Department> getDepartmentsByEmployee(@PathVariable Integer empId) {
 		return departmentService.getDepartmentsByEmployee(empId);
 	}
+	
 }
