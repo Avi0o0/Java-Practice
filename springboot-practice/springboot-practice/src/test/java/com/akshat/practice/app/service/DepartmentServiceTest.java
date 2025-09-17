@@ -4,28 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
@@ -35,28 +26,28 @@ import com.akshat.practice.app.exception.ResourceNotFoundException;
 import com.akshat.practice.app.repository.DepartmentRepository;
 
 @ExtendWith(MockitoExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class DepartmentServiceTest {
 
     @Mock
     private DepartmentRepository departmentRepository;
 
-    @Mock
-    private ModelMapper mapper;
+    @Spy
+    private final ModelMapper mapper = new ModelMapper();
 
     @InjectMocks
     private DepartmentService departmentService;
 
     private Department department;
-    
+
     @BeforeAll
-    void beforeAllSetup() {
-    	System.out.println("Starting Unit test for class: " + DepartmentServiceTest.class.toString());
+    static void beforeAllSetup() {
+        System.out.println("Starting Unit test for DepartmentService");
     }
-    
+
     @AfterAll
-    void afterAllSetup() {
-    	System.out.println("Unit test completed for class: " + DepartmentServiceTest.class.toString());
+    static void afterAllSetup() {
+        System.out.println("Unit test completed for DepartmentService");
     }
 
     @BeforeEach
@@ -65,21 +56,20 @@ class DepartmentServiceTest {
         department.setDeptId(1);
         department.setDeptName("IT");
         department.setDeptHead("John Doe");
-        System.out.println("→ Mock Department info setup done for test: " + testInfo.getDisplayName());
         System.out.println("➡ Running test: " + testInfo.getDisplayName());
     }
-    
+
     @AfterEach
     void afterEach(TestInfo testInfo) {
         System.out.println("✅ Completed test: " + testInfo.getDisplayName());
     }
 
     @Test
-   // @DisplayName("Get All Department Test")
     void testGetAllDepartments() {
         when(departmentRepository.findAll()).thenReturn(Arrays.asList(department));
 
         List<Department> result = departmentService.getAllDepartments();
+
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("IT", result.get(0).getDeptName());
@@ -92,6 +82,7 @@ class DepartmentServiceTest {
         when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
 
         Department result = departmentService.getDepartmentById(1);
+
         assertNotNull(result);
         assertEquals("IT", result.getDeptName());
         verify(departmentRepository, times(1)).findById(1);
@@ -114,7 +105,9 @@ class DepartmentServiceTest {
 
         Department newDept = new Department(deptRequest);
         when(departmentRepository.save(any(Department.class))).thenReturn(newDept);
+
         departmentService.addDepartment(deptRequest);
+
         verify(departmentRepository, times(1)).save(any(Department.class));
     }
 
@@ -126,15 +119,8 @@ class DepartmentServiceTest {
 
         when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
 
-        doAnswer(invocation -> {
-            DepartmentRequest source = invocation.getArgument(0);
-            Department target = invocation.getArgument(1);
-            target.setDeptName(source.getDeptName());
-            target.setDeptHead(source.getDeptHead());
-            return null;
-        }).when(mapper).map(any(DepartmentRequest.class), any(Department.class));
-
         departmentService.updateDepartment(deptRequest, 1);
+
         assertEquals("HR", department.getDeptName());
         assertEquals("Bob", department.getDeptHead());
         verify(departmentRepository, times(1)).save(department);
@@ -162,13 +148,13 @@ class DepartmentServiceTest {
         verify(departmentRepository, times(1)).deleteById(1);
     }
 
-    //@Test
-    @RepeatedTest(value = 2, name = "testGetDepartmentsByEmployee_Found Test : {currentRepetition} of {totalRepetitions}")
+    @Test
     void testGetDepartmentsByEmployee_Found() {
         when(departmentRepository.findDepartmentsByEmployeeId(1))
                 .thenReturn(Arrays.asList(department));
 
         List<Department> result = departmentService.getDepartmentsByEmployee(1);
+
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("IT", result.get(0).getDeptName());
@@ -184,7 +170,7 @@ class DepartmentServiceTest {
                 () -> departmentService.getDepartmentsByEmployee(99));
         verify(departmentRepository, times(1)).findDepartmentsByEmployeeId(99);
     }
-    
+
     @Test
     @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Enabled only on Windows")
     void testDeleteAllDepartmentsOnlyOnWindows() {
