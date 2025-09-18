@@ -1,6 +1,7 @@
 package com.akshat.practice.app.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,11 +74,13 @@ public class EmployeeController {
 	}
 
 	@PutMapping("/employee/{empId}/assign-departments")
-	public ResponseEntity<StatusResponse> assignDepartments(@PathVariable Integer empId,
-			@RequestBody List<Integer> departmentIds) {
+	public ResponseEntity<StatusResponse> assignDepartments(
+	        @PathVariable Integer empId,
+	        @RequestBody Map<String, List<Integer>> request) {
 
-		employeeService.assignDepartments(empId, departmentIds);
-		return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), "Departments assigned successfully"));
+	    List<Integer> departmentIds = request.get("departmentIds");
+	    employeeService.assignDepartments(empId, departmentIds);
+	    return ResponseEntity.ok(new StatusResponse(HttpStatus.OK.value(), "Departments assigned successfully"));
 	}
 
 	@GetMapping("/employees/by-department/{deptId}")

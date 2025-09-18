@@ -1,7 +1,6 @@
 package com.practice.app.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -46,14 +45,6 @@ public class EmailService {
 		return emailDetails
 		.map(email -> new EmailResponse(email.getEmployeeId(), email.getSubject(), email.getBody(), email.getStatus(), email.getTime()))
 		.orElseThrow(() -> new com.practice.app.exceptionhandler.ResourceNotFoundException("Email Details for ID: " + id + " not found"));
-	}
-
-	public List<EmailResponse> sendMailToAll(EmailRequest emailRequest) {
-		return null;
-	}
-
-	public String sendMailByDeptId(Integer deptId) {
-		return null;
 	}
 
 	private boolean validateEmployee(String token, Integer empId) {

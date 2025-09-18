@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import javax.crypto.KeyGenerator;
@@ -37,7 +38,7 @@ public class JWTService {
 	public String generateToken(String username) {
 		Map<String, Object> claims = new HashMap<>();
 		return Jwts.builder().claims().add(claims).subject(username).issuedAt(new Date(System.currentTimeMillis()))
-				.expiration(new Date(System.currentTimeMillis() + 1 * 60 * 1000)).and().signWith(getKey()).compact();
+				.expiration(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10))).and().signWith(getKey()).compact();
 	}
 
 	private SecretKey getKey() {

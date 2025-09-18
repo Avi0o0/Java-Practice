@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import com.akshat.practice.app.repository.EmployeeRepository;
 
 @Service
 public class EmployeeService {
+	
+	private Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
 	private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
@@ -33,12 +37,14 @@ public class EmployeeService {
     }
 
 	public List<EmployeeResponse> getAllEmployees() {
+		logger.info("Fetch Employee List");
 		List<Employee> employeeLists = employeeRepository.findAll();
 		return employeeLists.stream().map(empList -> new EmployeeResponse(empList.getEmpId(),
 				empList.getEmpName(), empList.getEmpType(), empList.getEmpField(), empList.getEmpEmail())).toList();
 	}
 
 	public EmployeeResponse getEmployee(Integer id) {
+		logger.info("Get Employee By ID {}", id);
 		Optional<Employee> employee = employeeRepository.findById(id);
 		return employee
 				.map(emp -> new EmployeeResponse(emp.getEmpId(), emp.getEmpName(), emp.getEmpType(), emp.getEmpField(), emp.getEmpEmail()))
@@ -46,10 +52,7 @@ public class EmployeeService {
 	}
 
 	public void addEmployee(EmployeeRequest employee) {
-		if (employeeRepository.existsById(employee.getEmpid())) {
-            throw new AlreadyExistException("Employee with ID " + employee.getEmpid() + " already exists");
-        }
-
+		logger.info("Add new employee");
         if (employeeRepository.existsByEmpEmail(employee.getEmpEmail())) {
             throw new AlreadyExistException("Employee with email " + employee.getEmpEmail() + " already exists");
         }
@@ -60,8 +63,10 @@ public class EmployeeService {
 	}
 
 	public StatusResponse updateEmployee(EmployeeRequest employee, Integer id) {
+		logger.info("Updating employee details with ID {}", id);
 		Employee employeeData = employeeRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Invalid Employee ID: " + id));
+		
 		mapper.map(employee, employeeData);
 		employeeRepository.save(employeeData);
 		return new StatusResponse(HttpStatus.OK.value(), "Employee Data Updated Successfully!");
@@ -87,10 +92,12 @@ public class EmployeeService {
 	}
 
 	public void deleteAllEmployees() {
+		logger.info("Deleting all employees");
 		employeeRepository.deleteAll();
 	}
 
-	public void deleteEmployeeByID(int id) {
+	public void deleteEmployeeByID(Integer id) {
+		logger.info("Deleting emp with ID {}", id);
 		employeeRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + id));
 		

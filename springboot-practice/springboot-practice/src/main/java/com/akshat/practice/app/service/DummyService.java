@@ -17,6 +17,7 @@ public class DummyService {
 		this.restTemplate = restTemplate;
 	}
 	
+	//@CircuitBreaker("")
 	public String getDummyData() {
 		return appClient.getDummyData();
 	}

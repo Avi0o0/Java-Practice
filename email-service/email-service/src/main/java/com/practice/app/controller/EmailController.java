@@ -1,7 +1,5 @@
 package com.practice.app.controller;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,16 +30,6 @@ public class EmailController {
 	@GetMapping("/getMailDetails/{id}")
 	public EmailResponse getMailDetails(@PathVariable Integer id) {
 		return emailService.getMailDetails(id);
-	}
-	
-	@PostMapping("/sendMail/All")
-	public List<EmailResponse> sendBulkMail(@RequestBody EmailRequest emailRequest) {
-		return emailService.sendMailToAll(emailRequest);
-	}
-	
-	@PostMapping("/sendMail/dept/{id}")
-	public String sendMailByDeptId(@PathVariable Integer deptId, @RequestBody EmailRequest emailRequest) {
-		return emailService.sendMailByDeptId(deptId);
 	}
 	
 	@PostMapping("/login")
