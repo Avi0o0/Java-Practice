@@ -20,6 +20,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 @Service
 public class EmailService {
 	
+	private static final String FALL_BACK_MSG = "Login service unavailable. Please try later.";
 	private final EmployeeDetartmentClient client;
 	private final EmailRepository repository;
 	
@@ -83,7 +84,7 @@ public class EmailService {
 	
 	// Fallback for login
 	public String sendMailFallback(UserRequest userRequest, Throwable ex) {
-	    return "Login service unavailable. Please try later.";
+	    return FALL_BACK_MSG;
 	}
 
 }
