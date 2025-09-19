@@ -1,11 +1,32 @@
 package com.akshat.practice.app.controller;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
 import java.util.Collections;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.akshat.practice.app.beans.request.EmployeeRequest;
 import com.akshat.practice.app.beans.response.EmployeeResponse;
@@ -13,18 +34,6 @@ import com.akshat.practice.app.beans.response.StatusResponse;
 import com.akshat.practice.app.constants.AppConstants;
 import com.akshat.practice.app.service.EmployeeService;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-@WebMvcTest
 class EmployeeControllerTest {
 
     @Mock
@@ -81,7 +90,7 @@ class EmployeeControllerTest {
 
         mockMvc.perform(post("/employee")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"empid\":1,\"empName\":\"David\",\"empType\":\"Regular\",\"empField\":\"Finance\",\"empEmail\":\"david@innodeed.com\"}"))
+                        .content("{\"empid\":1,\"empName\":\"David\",\"empType\":\"Regular\",\"empField\":\"Finance\",\"empEmail\":\"david.in@innodeed.com\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.message").value(AppConstants.SUCCESS));
@@ -97,7 +106,7 @@ class EmployeeControllerTest {
 
         mockMvc.perform(put("/employee/3")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"empid\":3,\"empName\":\"Eve\",\"empType\":\"Regular\",\"empField\":\"Admin\",\"empEmail\":\"eve@innodeed.com\"}"))
+                        .content("{\"empid\":3,\"empName\":\"Eve\",\"empType\":\"Regular\",\"empField\":\"Admin\",\"empEmail\":\"eve.adam@innodeed.com\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.message").value(AppConstants.SUCCESS));
@@ -151,7 +160,11 @@ class EmployeeControllerTest {
 
         mockMvc.perform(put("/employee/6/assign-departments")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("[101,102]"))
+                        .content("""
+                        		  {
+                        		    "departmentIds": [101, 102]
+                        		  }
+                        		  """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.message").value("Departments assigned successfully"));

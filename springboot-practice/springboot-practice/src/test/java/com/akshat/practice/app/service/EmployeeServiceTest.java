@@ -83,7 +83,6 @@ class EmployeeServiceTest {
     void testAddEmployee_Success() {
         EmployeeRequest request = new EmployeeRequest(1, "Alice", "Regular", "IT", "alice@innodeed.com");
 
-        when(employeeRepository.existsById(1)).thenReturn(false);
         when(employeeRepository.existsByEmpEmail("alice@innodeed.com")).thenReturn(false);
 
         employeeService.addEmployee(request);
@@ -92,19 +91,9 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void testAddEmployee_AlreadyExistsById() {
-        EmployeeRequest request = new EmployeeRequest(1, "Alice", "Regular", "IT", "alice@innodeed.com");
-
-        when(employeeRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(AlreadyExistException.class, () -> employeeService.addEmployee(request));
-    }
-
-    @Test
     void testAddEmployee_AlreadyExistsByEmail() {
         EmployeeRequest request = new EmployeeRequest(1, "Alice", "Regular", "IT", "alice@innodeed.com");
 
-        when(employeeRepository.existsById(1)).thenReturn(false);
         when(employeeRepository.existsByEmpEmail("alice@innodeed.com")).thenReturn(true);
 
         assertThrows(AlreadyExistException.class, () -> employeeService.addEmployee(request));

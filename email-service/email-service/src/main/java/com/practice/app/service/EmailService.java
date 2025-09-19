@@ -15,6 +15,8 @@ import com.practice.app.request.UserRequest;
 import com.practice.app.response.EmailResponse;
 import com.practice.app.response.EmployeeResponse;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+
 @Service
 public class EmailService {
 	
@@ -59,6 +61,7 @@ public class EmailService {
         repository.save(email);
     }
 
+	@CircuitBreaker(name = "mailService", fallbackMethod = "sendMailFallback")
 	public String login(UserRequest userRequest) {
 		return client.login(userRequest);
 	}
@@ -76,6 +79,11 @@ public class EmailService {
 	    if (emailRequest.getToken() == null || emailRequest.getToken().trim().isEmpty()) {
 	        throw new InvalidRequestException("Provide a Valid Token");
 	    }
+	}
+	
+	// Fallback for login
+	public String sendMailFallback(UserRequest userRequest, Throwable ex) {
+	    return "Login service unavailable. Please try later.";
 	}
 
 }
