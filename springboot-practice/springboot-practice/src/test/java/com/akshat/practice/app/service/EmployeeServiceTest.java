@@ -1,14 +1,8 @@
 package com.akshat.practice.app.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,14 +22,11 @@ import com.akshat.practice.app.entity.Department;
 import com.akshat.practice.app.entity.Employee;
 import com.akshat.practice.app.exception.AlreadyExistException;
 import com.akshat.practice.app.exception.ResourceNotFoundException;
-import com.akshat.practice.app.repository.DepartmentRepository;
-import com.akshat.practice.app.repository.EmployeeRepository;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeServiceTest {
 
-    private EmployeeRepository employeeRepository;
-    private DepartmentRepository departmentRepository;
+    private DatabaseService databaseService;
     private ModelMapper mapper;
     private EmployeeService employeeService;
 
@@ -43,38 +34,37 @@ class EmployeeServiceTest {
 
     @BeforeEach
     void setUp() {
-        employeeRepository = mock(EmployeeRepository.class);
-        departmentRepository = mock(DepartmentRepository.class);
-        mapper = spy(new ModelMapper()); // spy for real mapping
-        employeeService = new EmployeeService(employeeRepository, departmentRepository, mapper);
+        databaseService = mock(DatabaseService.class);
+        mapper = spy(new ModelMapper());
+        employeeService = new EmployeeService(databaseService, mapper);
 
         employee = new Employee(1, "Alice", "Regular", "IT", "alice@innodeed.com");
     }
 
     @Test
     void testGetAllEmployees() {
-        when(employeeRepository.findAll()).thenReturn(Collections.singletonList(employee));
+        when(databaseService.findAllEmployees()).thenReturn(Collections.singletonList(employee));
 
         List<EmployeeResponse> responses = employeeService.getAllEmployees();
 
         assertEquals(1, responses.size());
         assertEquals("Alice", responses.get(0).getEmpName());
-        verify(employeeRepository, times(1)).findAll();
+        verify(databaseService).findAllEmployees();
     }
 
     @Test
     void testGetEmployee_Found() {
-        when(employeeRepository.findById(1)).thenReturn(Optional.of(employee));
+        when(databaseService.findEmpById(1)).thenReturn(Optional.of(employee));
 
         EmployeeResponse response = employeeService.getEmployee(1);
 
         assertEquals("Alice", response.getEmpName());
-        verify(employeeRepository).findById(1);
+        verify(databaseService).findEmpById(1);
     }
 
     @Test
     void testGetEmployee_NotFound() {
-        when(employeeRepository.findById(2)).thenReturn(Optional.empty());
+        when(databaseService.findEmpById(2)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> employeeService.getEmployee(2));
     }
@@ -83,18 +73,18 @@ class EmployeeServiceTest {
     void testAddEmployee_Success() {
         EmployeeRequest request = new EmployeeRequest(1, "Alice", "Regular", "IT", "alice@innodeed.com");
 
-        when(employeeRepository.existsByEmpEmail("alice@innodeed.com")).thenReturn(false);
+        when(databaseService.existsByEmpEmail("alice@innodeed.com")).thenReturn(false);
 
         employeeService.addEmployee(request);
 
-        verify(employeeRepository).save(any(Employee.class));
+        verify(databaseService).saveEmp(any(Employee.class));
     }
 
     @Test
     void testAddEmployee_AlreadyExistsByEmail() {
         EmployeeRequest request = new EmployeeRequest(1, "Alice", "Regular", "IT", "alice@innodeed.com");
 
-        when(employeeRepository.existsByEmpEmail("alice@innodeed.com")).thenReturn(true);
+        when(databaseService.existsByEmpEmail("alice@innodeed.com")).thenReturn(true);
 
         assertThrows(AlreadyExistException.class, () -> employeeService.addEmployee(request));
     }
@@ -103,21 +93,21 @@ class EmployeeServiceTest {
     void testUpdateEmployee_Success() {
         EmployeeRequest request = new EmployeeRequest(1, "Bob", "Contractual", "HR", "bob@innodeed.com");
 
-        when(employeeRepository.findById(1)).thenReturn(Optional.of(employee));
+        when(databaseService.findEmpById(1)).thenReturn(Optional.of(employee));
 
         StatusResponse response = employeeService.updateEmployee(request, 1);
 
         assertEquals("Bob", employee.getEmpName());
         assertEquals("Contractual", employee.getEmpType());
         assertEquals(200, response.getStatus());
-        verify(employeeRepository).save(employee);
+        verify(databaseService).saveEmp(employee);
     }
 
     @Test
     void testUpdateEmployee_NotFound() {
         EmployeeRequest request = new EmployeeRequest(1, "Bob", "Contractual", "HR", "bob@innodeed.com");
 
-        when(employeeRepository.findById(1)).thenReturn(Optional.empty());
+        when(databaseService.findEmpById(1)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> employeeService.updateEmployee(request, 1));
     }
@@ -126,35 +116,35 @@ class EmployeeServiceTest {
     void testPatchEmployee_PartialUpdate() {
         EmployeeRequest request = new EmployeeRequest(null, "Charlie", null, null, null);
 
-        when(employeeRepository.findById(1)).thenReturn(Optional.of(employee));
+        when(databaseService.findEmpById(1)).thenReturn(Optional.of(employee));
 
         StatusResponse response = employeeService.patchEmployee(request, 1);
 
         assertEquals("Charlie", employee.getEmpName()); // only name updated
         assertEquals("Regular", employee.getEmpType()); // unchanged
         assertEquals(200, response.getStatus());
-        verify(employeeRepository).save(employee);
+        verify(databaseService).saveEmp(employee);
     }
 
     @Test
     void testDeleteAllEmployees() {
         employeeService.deleteAllEmployees();
 
-        verify(employeeRepository).deleteAll();
+        verify(databaseService).deleteAllEmps();
     }
 
     @Test
     void testDeleteEmployeeById_Success() {
-        when(employeeRepository.findById(1)).thenReturn(Optional.of(employee));
+        when(databaseService.findEmpById(1)).thenReturn(Optional.of(employee));
 
         employeeService.deleteEmployeeByID(1);
 
-        verify(employeeRepository).deleteById(1);
+        verify(databaseService).deleteEmpById(1);
     }
 
     @Test
     void testDeleteEmployeeById_NotFound() {
-        when(employeeRepository.findById(2)).thenReturn(Optional.empty());
+        when(databaseService.findEmpById(2)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> employeeService.deleteEmployeeByID(2));
     }
@@ -163,30 +153,28 @@ class EmployeeServiceTest {
     void testAssignDepartments_Success() {
         Department dept = new Department(10, "HR", "Bob");
 
-        when(employeeRepository.findById(1)).thenReturn(Optional.of(employee));
-        when(departmentRepository.findAllById(Arrays.asList(10))).thenReturn(Collections.singletonList(dept));
+        when(databaseService.findEmpById(1)).thenReturn(Optional.of(employee));
+        when(databaseService.findAllDeptsById(Arrays.asList(10))).thenReturn(Collections.singletonList(dept));
 
         employeeService.assignDepartments(1, Arrays.asList(10));
 
         assertTrue(employee.getDepartments().contains(dept));
-        verify(employeeRepository).save(employee);
+        verify(databaseService).saveEmp(employee);
     }
 
     @Test
     void testAssignDepartments_NoDepartmentsFound() {
-        when(employeeRepository.findById(1)).thenReturn(Optional.of(employee));
-        when(departmentRepository.findAllById(Collections.singletonList(10)))
+        when(databaseService.findEmpById(1)).thenReturn(Optional.of(employee));
+        when(databaseService.findAllDeptsById(Collections.singletonList(10)))
                 .thenReturn(Collections.emptyList());
 
-        Runnable action = () -> employeeService.assignDepartments(1, Collections.singletonList(10));
-
-        assertThrows(ResourceNotFoundException.class, action::run);
+        List<Integer> deptIds = Collections.singletonList(10);
+        assertThrows(ResourceNotFoundException.class, () -> employeeService.assignDepartments(1, deptIds));
     }
-
 
     @Test
     void testGetEmployeesByDepartment_Success() {
-        when(employeeRepository.findEmployeesByDepartmentId(10)).thenReturn(Collections.singletonList(employee));
+        when(databaseService.findEmployeesByDepartmentId(10)).thenReturn(Collections.singletonList(employee));
 
         List<EmployeeResponse> responses = employeeService.getEmployeesByDepartment(10);
 
@@ -196,7 +184,7 @@ class EmployeeServiceTest {
 
     @Test
     void testGetEmployeesByDepartment_NotFound() {
-        when(employeeRepository.findEmployeesByDepartmentId(10)).thenReturn(Collections.emptyList());
+        when(databaseService.findEmployeesByDepartmentId(10)).thenReturn(Collections.emptyList());
 
         assertThrows(ResourceNotFoundException.class, () -> employeeService.getEmployeesByDepartment(10));
     }

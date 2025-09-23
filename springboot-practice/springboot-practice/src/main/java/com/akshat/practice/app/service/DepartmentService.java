@@ -10,60 +10,59 @@ import org.springframework.stereotype.Service;
 import com.akshat.practice.app.beans.request.DepartmentRequest;
 import com.akshat.practice.app.entity.Department;
 import com.akshat.practice.app.exception.ResourceNotFoundException;
-import com.akshat.practice.app.repository.DepartmentRepository;
 
 @Service
 public class DepartmentService {
 	
 	private Logger logger = LoggerFactory.getLogger(DepartmentService.class);
 
-	private final DepartmentRepository departmentRepository;
+	private final DatabaseService databaseService;
 	private final ModelMapper mapper;
 	
-	public DepartmentService(DepartmentRepository departmentRepository, ModelMapper mapper) {
-		this.departmentRepository = departmentRepository;
+	public DepartmentService(ModelMapper mapper, DatabaseService databaseService) {
 		this.mapper = mapper;
+		this.databaseService = databaseService;
 	}
 
 	public List<Department> getAllDepartments() {
-		return departmentRepository.findAll();
+		return databaseService.findAllDepartments();
 	}
 
 	public Department getDepartmentById(Integer id) {
 		logger.info("Fetching dept data for ID {}", id);
-		return departmentRepository.findById(id)
+		return databaseService.findDeptById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Department with ID " + id + " not found"));
 	}
 
 	public void addDepartment(DepartmentRequest deptRequest) {
 		Department dept = new Department(deptRequest);
 		logger.info("New Department Added");
-		departmentRepository.save(dept);
+		databaseService.saveDept(dept);
 	}
 
 	public void updateDepartment(DepartmentRequest deptRequest, Integer id) {
-		Department deptData = departmentRepository.findById(id)
+		Department deptData = databaseService.findDeptById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Department With ID: " + id + " not found"));
 		
 		mapper.map(deptRequest, deptData);
 
 		logger.info("Updating the department details for Id {}", id);
-	    departmentRepository.save(deptData);
+		databaseService.saveDept(deptData);
 	}
 
 	public void deleteAllDepartments() {
 		logger.info("Deleting all the departments.");
-		departmentRepository.deleteAll();
+		databaseService.deleteAllDepts();
 	}
 
 	public void deleteDepartmentById(Integer id) {
 		logger.info("Deleting department details for ID {}", id);
-		departmentRepository.deleteById(id);
+		databaseService.deleteDeptById(id);
 	}
 
 	public List<Department> getDepartmentsByEmployee(Integer empId) {
 		logger.info("Fetching all department of employee with ID {}", empId);
-		List<Department> departments = departmentRepository.findDepartmentsByEmployeeId(empId);
+		List<Department> departments = databaseService.findDepartmentsByEmployeeId(empId);
 	    if (departments.isEmpty()) {
 	        throw new ResourceNotFoundException("Employee with employee ID " + empId + " not found");
 	    }

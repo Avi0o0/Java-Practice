@@ -23,14 +23,13 @@ import org.modelmapper.ModelMapper;
 import com.akshat.practice.app.beans.request.DepartmentRequest;
 import com.akshat.practice.app.entity.Department;
 import com.akshat.practice.app.exception.ResourceNotFoundException;
-import com.akshat.practice.app.repository.DepartmentRepository;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class DepartmentServiceTest {
 
     @Mock
-    private DepartmentRepository departmentRepository;
+    private DatabaseService databaseService;
 
     @Spy
     private final ModelMapper mapper = new ModelMapper();
@@ -66,7 +65,7 @@ class DepartmentServiceTest {
 
     @Test
     void testGetAllDepartments() {
-        when(departmentRepository.findAll()).thenReturn(Arrays.asList(department));
+        when(databaseService.findAllDepartments()).thenReturn(Arrays.asList(department));
 
         List<Department> result = departmentService.getAllDepartments();
 
@@ -74,27 +73,28 @@ class DepartmentServiceTest {
         assertEquals(1, result.size());
         assertEquals("IT", result.get(0).getDeptName());
 
-        verify(departmentRepository, times(1)).findAll();
+        verify(databaseService, times(1)).findAllDepartments();
     }
 
     @Test
     void testGetDepartmentById_Found() {
-        when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
+        when(databaseService.findDeptById(1)).thenReturn(Optional.of(department));
 
         Department result = departmentService.getDepartmentById(1);
 
         assertNotNull(result);
         assertEquals("IT", result.getDeptName());
-        verify(departmentRepository, times(1)).findById(1);
+        verify(databaseService, times(1)).findDeptById(1);
     }
 
     @Test
     void testGetDepartmentById_NotFound() {
-        when(departmentRepository.findById(99)).thenReturn(Optional.empty());
+        when(databaseService.findDeptById(99)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class,
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
                 () -> departmentService.getDepartmentById(99));
-        verify(departmentRepository, times(1)).findById(99);
+        verify(databaseService, times(1)).findDeptById(99);
+        assertEquals("Department with ID 99 not found", exception.getMessage());
     }
 
     @Test
@@ -102,13 +102,11 @@ class DepartmentServiceTest {
         DepartmentRequest deptRequest = new DepartmentRequest();
         deptRequest.setDeptName("Finance");
         deptRequest.setDeptHead("Alice");
-
-        Department newDept = new Department(deptRequest);
-        when(departmentRepository.save(any(Department.class))).thenReturn(newDept);
+        doNothing().when(databaseService).saveDept(any(Department.class));
 
         departmentService.addDepartment(deptRequest);
 
-        verify(departmentRepository, times(1)).save(any(Department.class));
+        verify(databaseService, times(1)).saveDept(any(Department.class));
     }
 
     @Test
@@ -117,40 +115,40 @@ class DepartmentServiceTest {
         deptRequest.setDeptName("HR");
         deptRequest.setDeptHead("Bob");
 
-        when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
+        when(databaseService.findDeptById(1)).thenReturn(Optional.of(department));
 
         departmentService.updateDepartment(deptRequest, 1);
 
         assertEquals("HR", department.getDeptName());
         assertEquals("Bob", department.getDeptHead());
-        verify(departmentRepository, times(1)).save(department);
+        verify(databaseService, times(1)).saveDept(department);
     }
 
     @Test
     void testUpdateDepartment_NotFound() {
         DepartmentRequest deptRequest = new DepartmentRequest();
-        when(departmentRepository.findById(99)).thenReturn(Optional.empty());
+        when(databaseService.findDeptById(99)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> departmentService.updateDepartment(deptRequest, 99));
-        verify(departmentRepository, times(1)).findById(99);
+        verify(databaseService, times(1)).findDeptById(99);
     }
 
     @Test
     void testDeleteAllDepartments() {
         departmentService.deleteAllDepartments();
-        verify(departmentRepository, times(1)).deleteAll();
+        verify(databaseService, times(1)).deleteAllDepts();
     }
 
     @Test
     void testDeleteDepartmentById() {
         departmentService.deleteDepartmentById(1);
-        verify(departmentRepository, times(1)).deleteById(1);
+        verify(databaseService, times(1)).deleteDeptById(1);
     }
 
     @Test
     void testGetDepartmentsByEmployee_Found() {
-        when(departmentRepository.findDepartmentsByEmployeeId(1))
+        when(databaseService.findDepartmentsByEmployeeId(1))
                 .thenReturn(Arrays.asList(department));
 
         List<Department> result = departmentService.getDepartmentsByEmployee(1);
@@ -158,23 +156,23 @@ class DepartmentServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("IT", result.get(0).getDeptName());
-        verify(departmentRepository, times(1)).findDepartmentsByEmployeeId(1);
+        verify(databaseService, times(1)).findDepartmentsByEmployeeId(1);
     }
 
     @Test
     void testGetDepartmentsByEmployee_NotFound() {
-        when(departmentRepository.findDepartmentsByEmployeeId(99))
+        when(databaseService.findDepartmentsByEmployeeId(99))
                 .thenReturn(List.of());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> departmentService.getDepartmentsByEmployee(99));
-        verify(departmentRepository, times(1)).findDepartmentsByEmployeeId(99);
+        verify(databaseService, times(1)).findDepartmentsByEmployeeId(99);
     }
 
     @Test
     @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Enabled only on Windows")
     void testDeleteAllDepartmentsOnlyOnWindows() {
         departmentService.deleteAllDepartments();
-        verify(departmentRepository, times(1)).deleteAll();
+        verify(databaseService, times(1)).deleteAllDepts();
     }
 }

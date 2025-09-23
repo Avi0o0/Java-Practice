@@ -17,35 +17,31 @@ import com.akshat.practice.app.entity.Department;
 import com.akshat.practice.app.entity.Employee;
 import com.akshat.practice.app.exception.AlreadyExistException;
 import com.akshat.practice.app.exception.ResourceNotFoundException;
-import com.akshat.practice.app.repository.DepartmentRepository;
-import com.akshat.practice.app.repository.EmployeeRepository;
 
 @Service
 public class EmployeeService {
 	
 	private Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
-	private final EmployeeRepository employeeRepository;
-    private final DepartmentRepository departmentRepository;
+	private final DatabaseService databaseService;
     private final ModelMapper mapper;
 
     // Spring automatically injects beans via this constructor
-    public EmployeeService(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository, ModelMapper mapper) {
-        this.employeeRepository = employeeRepository;
-        this.departmentRepository = departmentRepository;
+    public EmployeeService(DatabaseService databaseService, ModelMapper mapper) {
+        this.databaseService = databaseService;
         this.mapper = mapper;
     }
 
 	public List<EmployeeResponse> getAllEmployees() {
 		logger.info("Fetch Employee List");
-		List<Employee> employeeLists = employeeRepository.findAll();
+		List<Employee> employeeLists = databaseService.findAllEmployees();
 		return employeeLists.stream().map(empList -> new EmployeeResponse(empList.getEmpId(),
 				empList.getEmpName(), empList.getEmpType(), empList.getEmpField(), empList.getEmpEmail())).toList();
 	}
 
 	public EmployeeResponse getEmployee(Integer id) {
 		logger.info("Get Employee By ID {}", id);
-		Optional<Employee> employee = employeeRepository.findById(id);
+		Optional<Employee> employee = databaseService.findEmpById(id);
 		return employee
 				.map(emp -> new EmployeeResponse(emp.getEmpId(), emp.getEmpName(), emp.getEmpType(), emp.getEmpField(), emp.getEmpEmail()))
 				.orElseThrow(() -> new ResourceNotFoundException("Employee with ID " + id + " not found"));
@@ -53,27 +49,27 @@ public class EmployeeService {
 
 	public void addEmployee(EmployeeRequest employee) {
 		logger.info("Add new employee");
-        if (employeeRepository.existsByEmpEmail(employee.getEmpEmail())) {
+        if (databaseService.existsByEmpEmail(employee.getEmpEmail())) {
             throw new AlreadyExistException("Employee with email " + employee.getEmpEmail() + " already exists");
         }
         
 		Employee emp = new Employee(employee.getEmpid(), employee.getEmpName(), employee.getEmpType(),
 				employee.getEmpField(), employee.getEmpEmail());
-		employeeRepository.save(emp);
+		databaseService.saveEmp(emp);
 	}
 
 	public StatusResponse updateEmployee(EmployeeRequest employee, Integer id) {
 		logger.info("Updating employee details with ID {}", id);
-		Employee employeeData = employeeRepository.findById(id)
+		Employee employeeData = databaseService.findEmpById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Invalid Employee ID: " + id));
 		
 		mapper.map(employee, employeeData);
-		employeeRepository.save(employeeData);
+		databaseService.saveEmp(employeeData);
 		return new StatusResponse(HttpStatus.OK.value(), "Employee Data Updated Successfully!");
 	}
 	
 	public StatusResponse patchEmployee(EmployeeRequest employee, Integer id) {
-		Employee employeeData = employeeRepository.findById(id)
+		Employee employeeData = databaseService.findEmpById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Invalid Employee ID: " + id));
 		
 		if (employee.getEmpName() != null && !employee.getEmpName().trim().isEmpty()) {
@@ -86,40 +82,40 @@ public class EmployeeService {
 	        employeeData.setEmpField(employee.getEmpField());
 	    }
 	    
-	    employeeRepository.save(employeeData);
+	    databaseService.saveEmp(employeeData);
 	    
 		return new StatusResponse(HttpStatus.OK.value(), "Employee Data Updated Successfully!");
 	}
 
 	public void deleteAllEmployees() {
 		logger.info("Deleting all employees");
-		employeeRepository.deleteAll();
+		databaseService.deleteAllEmps();
 	}
 
 	public void deleteEmployeeByID(Integer id) {
 		logger.info("Deleting emp with ID {}", id);
-		employeeRepository.findById(id)
+		databaseService.findEmpById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + id));
 		
-		employeeRepository.deleteById(id);
+		databaseService.deleteEmpById(id);
 	}
 
 	public void assignDepartments(Integer empId, List<Integer> departmentIds) {
-		Employee employee = employeeRepository.findById(empId)
+		Employee employee = databaseService.findEmpById(empId)
 				.orElseThrow(() -> new RuntimeException("Employee not found with id " + empId));
 
-		List<Department> departments = departmentRepository.findAllById(departmentIds);
+		List<Department> departments = databaseService.findAllDeptsById(departmentIds);
 
 		if (departments.isEmpty()) {
 			throw new ResourceNotFoundException("No departments found for ids " + departmentIds);
 		}
 
 		employee.setDepartments(new HashSet<>(departments));
-		employeeRepository.save(employee);
+		databaseService.saveEmp(employee);
 	}
 
 	public List<EmployeeResponse> getEmployeesByDepartment(Integer deptId) {
-		List<Employee> employeeLists = employeeRepository.findEmployeesByDepartmentId(deptId);
+		List<Employee> employeeLists = databaseService.findEmployeesByDepartmentId(deptId);
 
 		if (employeeLists.isEmpty()) {
 			throw new ResourceNotFoundException("Department with department ID " + deptId + " not found");
