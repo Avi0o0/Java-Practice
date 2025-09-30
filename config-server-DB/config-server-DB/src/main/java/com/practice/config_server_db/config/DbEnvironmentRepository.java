@@ -41,16 +41,14 @@ public class DbEnvironmentRepository implements EnvironmentRepository {
 				value = decryptValue(value);
 			}
 			propertyMap.put(prop.getPropKey(), value);
-			System.out.println("Key:" + prop.getPropKey() + " Value: " + value );
 		}
 
 		environment.add(new PropertySource("database", propertyMap));
 		return environment;
 	}
 
-	// 🔑 Dummy decrypt method (replace with Feign client or Jasypt)
+	//TO BE Implemented...
 	private String decryptValue(String encryptedValue) {
-		// TODO: connect to your decryption MS or use Jasypt
 		return "DECRYPTED(" + encryptedValue + ")";
 	}
 }
