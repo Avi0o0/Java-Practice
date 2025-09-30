@@ -2,6 +2,7 @@ package com.practice.app.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import com.practice.app.response.EmailResponse;
 import com.practice.app.service.EmailService;
 
 @RestController
+@RefreshScope
 public class EmailController {
 	
 	private Logger logger = LoggerFactory.getLogger(EmailController.class);

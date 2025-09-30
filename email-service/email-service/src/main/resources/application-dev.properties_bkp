@@ -1,10 +1,13 @@
 spring.application.name=email-service
 server.port=8000
 
-#app.checkprop = DEV
+app.checkprop = {cipher}54f4297a07fa2b431392a338bf95837ca82f7f3499d6f2d366c68f30da9cf4bba2c27e08b8fddb11f243fcac8fef86e7
 
 #DB
-
+spring.datasource.url=jdbc:postgresql://localhost:5432/EmployeeDB
+spring.datasource.username=postgres
+spring.datasource.password={cipher}b47040675938172f17dc98fa1a7744ae1890d5db8a56c78f4d7487c12372d614
+spring.datasource.driver-class-name=org.postgresql.Driver
 
 # JPA properties
 spring.jpa.hibernate.ddl-auto=update
@@ -28,3 +31,4 @@ resilience4j.circuitbreaker.instances.mailService.minimum-number-of-calls=5
 resilience4j.circuitbreaker.instances.mailService.failure-rate-threshold=50
 resilience4j.circuitbreaker.instances.mailService.wait-duration-in-open-state=10s
 resilience4j.circuitbreaker.instances.mailService.permitted-number-of-calls-in-half-open-state=3
+
